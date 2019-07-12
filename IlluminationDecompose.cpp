@@ -580,15 +580,15 @@ void sove_initialization(IplImage* Input, double* si1,double* si2,double* si3, d
 	
 	// light source estimating 
 	shadow_free_k(h, w,num_order1,order_flag1,flag1,of,brush_flag,k_weight,si1,si2,si3);
-	estimate_object(h, w,flag1,of,k_weight,si1,si2,si3);
+	estimate_object1(h, w,flag1,of,k_weight,si1,si2,si3);
 
 	// light source estimating 
 	shadow_free_k(h, w,num_order2,order_flag2,flag2,of,brush_flag,k_weight2,si1,si2,si3);    
-	estimate_object(h, w,flag2,of,k_weight2,si1,si2,si3);
+	estimate_object1(h, w,flag2,of,k_weight2,si1,si2,si3);
 
 	// light source estimating 
 	shadow_free_k(h, w,num_order3,order_flag3,flag3,of,brush_flag,k_weight3,si1,si2,si3);
-	estimate_object(h, w,flag3,of,k_weight3,si1,si2,si3);
+	estimate_object1(h, w,flag3,of,k_weight3,si1,si2,si3);
 
 	IplImage* light1 = cvCreateImage(cvSize(w,h),8,3);
 	IplImage* light2 = cvCreateImage(cvSize(w,h),8,3);
@@ -1106,6 +1106,106 @@ void addselfshadow(IplImage* Input,double* si1, double* si2, double* si3,double*
 	cvSaveImage("ss2.bmp",shadow21);
 //	cvSaveImage("inis_3.bmp",ini_3);
  }
+
+ void estimate_object1(int h, int w, int** flag, int* of, double** k_weight, double* si1, double* si2, double* si3)
+ {
+
+	 int num_0 = 0, t1 = 0, t2 = 1;
+	 while (t1<t2)
+	 {
+		 cout << num_0 << endl;
+		 t1 = num_0;
+		 for (int i = 0; i<h; i++)
+		 {
+			 for (int j = 0; j<w; j++)
+			 {
+				 double zij1 = 0.0, zij2 = 0.0, zij3 = 0.0;
+				 double sz1 = 0.0, sz2 = 0.0, sz3 = 0.0;
+				 double sigma = 5;
+				 if (flag[i][j] == 0 && of[i*w + j] == 2)
+				 {
+					 /*k_weight[0][i*w+j] = 0;
+					 k_weight[1][i*w+j] = 0;
+					 k_weight[2][i*w+j] = 255;
+					 flag[i][j] = 1;
+					 num_0++;*/
+					 int r1 = 10;
+					 int i_s = (i - r1)<0 ? 0 : (i - r1);
+					 int i_e = (i + r1)<h ? (i + r1 + 1) : h;
+					 int j_s = (j - r1)<0 ? 0 : (j - r1);
+					 int j_e = (j + r1)<w ? (j + r1 + 1) : w;
+					 int num_1 = 0;
+					 double temp = 0.0;
+					 double tidu = 0.0;
+					 double temp1 = 0.0;
+					 double tidu1 = 0.0;
+					 double temp2 = 0.0;
+					 double tidu2 = 0.0;
+					 double temp3 = 0.0;
+					 double tidu3 = 0.0;
+					 double temp21 = 0.0;
+					 double tidu21 = 0.0;
+					 double temp31 = 0.0;
+					 double tidu31 = 0.0;
+					 for (int k = i_s; k<i_e; k++)
+					 {
+						 for (int m = j_s; m<j_e; m++)
+						 {
+							 if (k != i || m != j)
+							 {
+								 if (flag[k][m] == 1 && of[k*w + m] != 1)
+								 {
+									 tidu = si1[i*w + j] - si1[k*w + m];
+									 tidu = k_weight[0][k*w + m]/*+tidu*/;
+									 tidu2 = si2[i*w + j] - si2[k*w + m];
+									 tidu2 = k_weight[1][k*w + m]/*+tidu2*/;
+									 tidu3 = si3[i*w + j] - si3[k*w + m];
+									 tidu3 = k_weight[2][k*w + m]/*+tidu3*/;
+									 //	if (of[i*w+j] == 2 && of[k*w+m] == 2)
+									 {
+										 /*tidu = si1[i*w+j]*k_weight[0][k*w+m]/si1[k*w+m];
+										 tidu2 = si2[i*w+j]*k_weight[1][k*w+m]/si2[k*w+m];
+										 tidu3 = si3[i*w+j]*k_weight[2][k*w+m]/si3[k*w+m];*/
+										 zij1 = -(si1[i*w + j] - si1[k*w + m])*(si1[i*w + j] - si1[k*w + m]) / (2 * sigma*sigma);
+										 zij1 = exp(zij1);
+										 zij2 = -(si2[i*w + j] - si2[k*w + m])*(si2[i*w + j] - si2[k*w + m]) / (2 * sigma*sigma);
+										 zij2 = exp(zij2);
+										 zij3 = -(si3[i*w + j] - si3[k*w + m])*(si3[i*w + j] - si3[k*w + m]) / (2 * sigma*sigma);
+										 zij3 = exp(zij3);
+										 sz1 += zij1;
+										 sz2 += zij2;
+										 sz3 += zij3;
+										 /*if (of[i*w+j] == 2 && of[k*w+m] == 1)
+										 {
+										 tidu = tidu ;
+										 tidu2 = tidu2 ;
+										 tidu3 = tidu3 ;
+										 }*/
+										 temp += tidu*zij1;
+										 temp2 += tidu2*zij2;
+										 temp3 += tidu3*zij3;
+										 num_1++;
+									 }
+								 }
+							 }
+						 }
+					 }
+					 if (num_1 != 0)
+					 {
+						 k_weight[0][i*w + j] = temp / sz1/*num_1*/;
+						 k_weight[1][i*w + j] = temp2 / sz2/*num_1*/;
+						 k_weight[2][i*w + j] = temp3 / sz3/*num_1*/;
+						 flag[i][j] = 1;
+						 //tt[i*w+j]=1;
+						 num_0++;
+					 }
+				 }
+			 }
+		 }
+		 t2 = num_0;
+	 }
+ }
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
