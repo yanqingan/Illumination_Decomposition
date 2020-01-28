@@ -1,6 +1,6 @@
 /*
 *  Copyright (c) 2015-2018 Ling Zhang (lingzhang (at) whu.edu.cn) and 
-*  Qingan Yan (yanqingan (at) whu.edu.cn¡¡&&
+*  Qingan Yan (yanqingan (at) whu.edu.cn &&
 *  yanqinganssg (at) gmail.com) and Wuhan UNiversity.
 *
 *  This code implements the core part of paper [1].
